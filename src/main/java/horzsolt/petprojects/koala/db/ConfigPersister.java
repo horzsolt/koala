@@ -9,21 +9,21 @@ import java.sql.ResultSet;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.PropertySource;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 
-@PropertySource("classpath:config.properties")
 public class ConfigPersister {
 
-	private static Logger logger = LogManager.getLogger("ConfigPersister");
+	private static Logger logger = LogManager.getLogger(ConfigPersister.class.getName());
 	private static Connection connection = null;
-	@Value("${mysql.connection}")
+	@Value("${mysql_connection}")
 	private static String jdbc_url;
 
 	private static void connect() {
 
 		try {
 
-			logger.debug("jdbc_url: " + jdbc_url);
+			logger.debug("-------------------------------------------jdbc_url: " + jdbc_url);
+			
 			if (connection != null) {
 				if (!connection.isClosed()) {
 					return;
@@ -52,8 +52,8 @@ public class ConfigPersister {
 
 			rs.next();
 
-			result.setEnd(rs.getDate("end"));
-			result.setStart(rs.getDate("start"));
+			result.setEnd(rs.getDate("end").toLocalDate());
+			result.setStart(rs.getDate("start").toLocalDate());
 
 			rs.close();
 

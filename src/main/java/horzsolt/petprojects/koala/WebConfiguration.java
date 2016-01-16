@@ -3,6 +3,8 @@ package horzsolt.petprojects.koala;
 import java.io.IOException;
 import java.time.LocalDate;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
@@ -17,11 +19,19 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @EnableSwagger2 //localhost:8080/swagger-ui.html.
 public class WebConfiguration extends WebMvcConfigurerAdapter {
 
-	@Bean
-	public static PropertySourcesPlaceholderConfigurer propertyConfigInDev() throws IOException {
+	private static Logger logger = LogManager.getLogger(WebConfiguration.class.getName());
+	
+	//@Bean
+	public static PropertySourcesPlaceholderConfigurer propertyConfigInDev() {
+		
+		logger.debug("----------------------------------------------------------------------------------------------------");
 		PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer = new PropertySourcesPlaceholderConfigurer();
         propertySourcesPlaceholderConfigurer.setIgnoreUnresolvablePlaceholders(Boolean.TRUE);
-        propertySourcesPlaceholderConfigurer.setLocations(new PathMatchingResourcePatternResolver().getResources("classpath*:*.properties"));
+        try {
+			propertySourcesPlaceholderConfigurer.setLocations(new PathMatchingResourcePatternResolver().getResources("classpath*:koalaConfig.properties"));
+		} catch (IOException e) {
+			logger.error(e);
+		}
         return propertySourcesPlaceholderConfigurer;		
 	}
 

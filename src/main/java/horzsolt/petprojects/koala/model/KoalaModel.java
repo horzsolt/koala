@@ -1,16 +1,8 @@
 package horzsolt.petprojects.koala.model;
 
-import java.time.LocalDate;
-import java.util.LinkedHashMap;
-import java.util.Map;
-
-import javax.validation.constraints.NotNull;
-
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.PropertySource;
 
 public class KoalaModel {
-	
 	@Value("${koala.ip}")
     private String ipAddress;
 	@Value("${koala.port}")
@@ -19,27 +11,7 @@ public class KoalaModel {
     private String userName;
 	@Value("${koala.password}")	
     private String password;
-	@NotNull
-    private LocalDate startDate;
-	@NotNull
-    private LocalDate endDate;
-
-    public LocalDate getStartDate() {
-        return startDate;
-    }
-
-    public void setStartDate(LocalDate dStart) {
-        this.startDate = dStart;
-    }
-
-    public LocalDate getEndDate() {
-        return endDate;
-    }
-
-    public void setEndDate(LocalDate dEnd) {
-        this.endDate = dEnd;
-    }
-
+	
     public String getIpAddress() {
         return ipAddress;
     }
@@ -71,5 +43,4 @@ public class KoalaModel {
     public void setPassword(String password) {
         this.password = password;
     }
-
 }

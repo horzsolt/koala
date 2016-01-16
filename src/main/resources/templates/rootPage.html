@@ -2,30 +2,31 @@
 <html xmlns:th="http://www.thymeleaf.org"
 	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
 	layout:decorator="layout/default">
+
 <body>
 	<div class="row" layout:fragment="content">
 		<h3 class="indigo-text center" th:text="|Koala starter page|">Test
 			message</h3>
 
-		<h3 class="indigo-text center">Add the date range</h3>
-		<form th:action="@{/}" th:object="${koalaModel}" method="post" class="col m8 s12 offset-m2">
+		<h4 class="indigo-text center">Add the date range</h4>
+		<form th:action="@{/}" th:object="${koalaForm}" method="post" class="col m8 s12 offset-m2">
 
 			<ul th:if="${#fields.hasErrors('*')}" class="errorlist">
 				<li th:each="err : ${#fields.errors('*')}" th:text="${err}">Input is incorrect</li>
 			</ul>
 			
 			<div class="row">
-				<div class="input-field col s6">
-					<input th:field="${koalaModel.startDate}" id=" startDate"
-						type="text" th:placeholder="${dateFormat}" /> <label
-						for="startDate">Start date</label>
+				<div class="input-field col s3">
+					<input th:field="${koalaForm.startDate}" id="startDate"
+						type="text" th:placeholder="${dateFormat}"  /> 
+					<!--  <label for="startDate">Start date</label> -->
 				</div>
 			</div>
 			<div class="row">
-				<div class="input-field col s6">
-					<input th:field="${koalaModel.endDate}" id=" endDate" type="text"
-						th:placeholder="${dateFormat}" /> <label for="endDate">End
-						date</label>
+				<div class="input-field col s3">
+					<input th:field="${koalaForm.endDate}" id="endDate" type="text"
+						th:placeholder="${dateFormat}" th:value="${koalaForm.endDate}"/> 
+					<!-- <label for="endDate">End date</label> -->
 				</div>
 			</div>
 			<div class="row s12">
