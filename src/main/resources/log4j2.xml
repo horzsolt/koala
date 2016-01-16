@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+    <Configuration status="debug">
+      <Properties>
+		<Property name="filename1">/volume1/horzsolt/koala/log/koala</Property>      
+        <Property name="filename2">G:/koala</Property>
+      </Properties>
+    
+      <Appenders>
+      
+		<RollingFile name="file-log" fileName="${filename2}.log"
+			filePattern="/${filename2}-%d{yyyy.MM.dd}.log">
+			<PatternLayout>
+				<pattern>[%-5level] %d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %c{1} - %msg%n</pattern>
+			</PatternLayout>
+			<Policies>
+				<TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+			</Policies>
+		</RollingFile>      
+        </Appenders>
+     
+      <Loggers>
+        <Logger name="horzsolt.petprojects" level="debug" additivity="false">
+          <AppenderRef ref="file-log"/>
+        </Logger>
+      </Loggers>
+     
+    </Configuration>
+    
+    
