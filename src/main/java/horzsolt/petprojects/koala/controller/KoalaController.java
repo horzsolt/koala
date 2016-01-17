@@ -6,7 +6,6 @@ import javax.validation.Valid;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -17,8 +16,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import horzsolt.petprojects.koala.db.ConfigPersister;
 import horzsolt.petprojects.koala.db.DownloadProperties;
 import horzsolt.petprojects.koala.model.KoalaForm;
-import horzsolt.petprojects.koala.util.DirectoryUtil;
-import horzsolt.petprojects.koala.util.FtpUtil;
+import horzsolt.petprojects.koala.task.KoalaTasks;
 import horzsolt.petprojects.koala.util.HULocalDateFormatter;
 
 @Controller
@@ -50,7 +48,7 @@ public class KoalaController {
 			return "rootPage";
 		}
 
-		doListing(koalaForm);
+		KoalaTasks.doListing(koalaForm);
 
 		return "redirect:/status";
 	}
@@ -60,14 +58,6 @@ public class KoalaController {
 		model.addAttribute("message", "Valami");
 		
 		return "resultPage";
-	}
-
-	@Async
-	private void doListing(KoalaForm koalaForm) {
-		DirectoryUtil directoryUtil = new DirectoryUtil();
-		FtpUtil ftpUtil = new FtpUtil();
-		directoryUtil.GetDaysBetweenDates(koalaForm.getStartDate(), koalaForm.getEndDate()).stream()
-				.forEach(item -> ftpUtil.directoryToAlbum(item).stream().forEach(album -> album.write()));
 	}
 
 }
