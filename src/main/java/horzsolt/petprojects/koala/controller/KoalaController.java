@@ -6,7 +6,9 @@ import javax.validation.Valid;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,12 +27,12 @@ public class KoalaController {
 	private static Logger logger = LogManager.getLogger(KoalaController.class.getName());
 
 	@ModelAttribute("dateFormat")
-	public String localeFormat(Locale locale) {
+	private String localeFormat(Locale locale) {
 		return HULocalDateFormatter.HU_PATTERN;
 	}
 
 	@RequestMapping("/")
-	public String getRootPage(KoalaForm koalaForm) {
+	private String getRootPage(KoalaForm koalaForm) {
 
 		ConfigPersister persister = new ConfigPersister();
 
@@ -42,18 +44,30 @@ public class KoalaController {
 	}
 
 	@RequestMapping(value = "/", method = RequestMethod.POST)
-	public String saveProfile(@Valid KoalaForm koalaForm, BindingResult bindingResult) {
+	private String saveProfile(@Valid KoalaForm koalaForm, BindingResult bindingResult) {
 
 		if (bindingResult.hasErrors()) {
 			return "rootPage";
 		}
 
+		doListing(koalaForm);
+
+		return "redirect:/status";
+	}
+	
+	@RequestMapping(value = "/status")
+	private String fetchStatus(Model model) {
+		model.addAttribute("message", "Valami");
+		
+		return "resultPage";
+	}
+
+	@Async
+	private void doListing(KoalaForm koalaForm) {
 		DirectoryUtil directoryUtil = new DirectoryUtil();
 		FtpUtil ftpUtil = new FtpUtil();
 		directoryUtil.GetDaysBetweenDates(koalaForm.getStartDate(), koalaForm.getEndDate()).stream()
 				.forEach(item -> ftpUtil.directoryToAlbum(item).stream().forEach(album -> album.write()));
-
-		return "redirect:/";
 	}
 
 }
