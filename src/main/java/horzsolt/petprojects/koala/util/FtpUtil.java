@@ -10,47 +10,56 @@ import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 
-import horzsolt.petprojects.koala.model.KoalaModel;
-import horzsolt.petprojects.koala.model.Mp3Album;
-import horzsolt.petprojects.koala.model.Mp3File;
+import horzsolt.petprojects.KoalaApplication;
+import horzsolt.petprojects.KoalaApplication.KoalaContext;
+import horzsolt.petprojects.koala.model.Album;
+import horzsolt.petprojects.koala.model.MusicFile;
 
 public class FtpUtil {
 	
-	private static FTPClient ftp;
+	private FTPClient ftp;
 	private static Logger logger = LogManager.getLogger("FtpUtil");
 
-	private static void init() throws IOException {
+	@Autowired
+	private KoalaContext koalaContext;
+	
+	private void init() throws IOException {
 
 		if ((ftp == null) || (!ftp.isConnected())) {
-			KoalaModel model = new KoalaModel();
+
+			if (koalaContext == null) {
+				koalaContext = KoalaApplication.context.getBean(KoalaContext.class);
+			}
+			
 			ftp = new FTPClient();
-			ftp.connect(model.getIpAddress(), Integer.parseInt(model.getPort()));
-			ftp.login(model.getUserName(), model.getPassword());
+			ftp.connect(koalaContext.getIpAddress(), Integer.parseInt(koalaContext.getPort()));
+			ftp.login(koalaContext.getUserName(), koalaContext.getPassword());
 			ftp.enterLocalPassiveMode();
 		}
 	}
 
-	public static List<Mp3Album> ftpDirectoryToMp3Album(String directory) {
+	public List<Album> directoryToAlbum(String directory) {
 
 		try {
 
 			init();
-			List<Mp3Album> result = new ArrayList<>();
+			List<Album> result = new ArrayList<>();
 
-			FTPFile[] mp3Folders = ftp.listDirectories(directory);
+			FTPFile[] folders = ftp.listDirectories(directory);
 
-			for (FTPFile mp3Folder : mp3Folders) {
+			for (FTPFile folder : folders) {
 
-				if (mp3Folder.getName().length() > 3) {
+				if (folder.getName().length() > 3) {
 
-					Mp3Album mp3Album = new Mp3Album();
+					Album album = new Album();
 
-					String folderName = mp3Folder.getName();
+					String folderName = folder.getName();
 					logger.debug("Scanning folder: " + folderName);
 
-					mp3Album.setFtpDirectory(directory + folderName);
-					mp3Album.setTitle(folderName);
+					album.setFtpDirectory(directory + folderName);
+					album.setTitle(folderName);
 
 					FTPFile[] files = ftp.listFiles(directory + folderName);
 
@@ -63,14 +72,14 @@ public class FtpUtil {
 
 								if (sk.countTokens() == 4) {
 
-									mp3Album.setGenre(sk.nextToken().toLowerCase());
+									album.setGenre(sk.nextToken().toLowerCase());
 
 									try {
-										mp3Album.setYear(Integer.parseInt(sk.nextToken()));
-										mp3Album.setBitrate(Integer.parseInt(sk.nextToken().replaceAll("[^0-9]", "")));
+										album.setYear(Integer.parseInt(sk.nextToken()));
+										album.setBitrate(Integer.parseInt(sk.nextToken().replaceAll("[^0-9]", "")));
 									} catch (Exception e) {
-										mp3Album.setYear(LocalDate.now().getYear());
-										mp3Album.setBitrate(256);
+										album.setYear(LocalDate.now().getYear());
+										album.setBitrate(256);
 									}
 								} else {
 									logger.warn("CountTokens is not equals with 4: " + sk.countTokens() + " "
@@ -80,31 +89,26 @@ public class FtpUtil {
 								}
 							} else {
 
-								Mp3File mp3File = new Mp3File();
-								mp3File.setTitle(file.getName());
-								mp3File.setSize(file.getSize());
+								MusicFile musicFile = new MusicFile();
+								musicFile.setTitle(file.getName());
+								musicFile.setSize(file.getSize());
 
-								// System.out.println("Getting extension: " +
-								// file.getName());
 								int pos = file.getName().lastIndexOf(".");
-								mp3File.setExtension(file.getName().substring(pos, pos + 4));
+								musicFile.setExtension(file.getName().substring(pos, pos + 4));
 
-								// System.out.println("Extension: " +
-								// mp3File.getExtension());
-
-								mp3Album.addMp3File(mp3File);
+								album.addMusicFile(musicFile);
 							}
 						}
 					}
 
-					result.add(mp3Album);
+					result.add(album);
 				}
 			}
 
 			return result;
 
 		} catch (IOException ex) {
-			logger.error("ftpDirectoryToMp3Album exception at: ", ex);
+			logger.error("directoryToAlbum exception at: ", ex);
 			return null;
 		}
 	}

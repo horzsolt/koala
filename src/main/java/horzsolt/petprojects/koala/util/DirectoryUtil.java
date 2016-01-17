@@ -1,43 +1,42 @@
 package horzsolt.petprojects.koala.util;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.PropertySource;
+import org.springframework.beans.factory.annotation.Autowired;
 
-@PropertySource("classpath:config.properties")
+import horzsolt.petprojects.KoalaApplication;
+import horzsolt.petprojects.KoalaApplication.KoalaContext;
+
 public class DirectoryUtil {
 	
-	@Value("${koala.DAY_HOME}")
-    private static String DAY_HOME;
-    
-    public static List<String> GetDaysBetweenDates(String start, String end) {
+	@Autowired
+	private KoalaContext koalaContext;
+	
+    public List<String> GetDaysBetweenDates(LocalDate start, LocalDate end) {
 
-        DateTimeFormatter formatter
-                = DateTimeFormatter.ofPattern("yyyy.MM.dd");
-        LocalDate startDate = LocalDate.parse(start, formatter);
-        LocalDate endDate = LocalDate.parse(end, formatter);
-
-        int numberOfDaysBetween = Math.toIntExact(ChronoUnit.DAYS.between(startDate, endDate));
+		if (koalaContext == null) {
+			koalaContext = KoalaApplication.context.getBean(KoalaContext.class);
+		}
+		
+        int numberOfDaysBetween = Math.toIntExact(ChronoUnit.DAYS.between(start, end));
         List<String> result = new ArrayList<>(numberOfDaysBetween);
 
-        LocalDate tempDate = startDate;
+        LocalDate tempDate = start;
 
-        while (endDate.isAfter(tempDate)) {
+        while (end.isAfter(tempDate)) {
             result.add(addZero(tempDate.getMonth().getValue()) + addZero(tempDate.getDayOfMonth()));
             tempDate = tempDate.plusDays(1);
         }
 
         result.add(addZero(tempDate.getMonth().getValue()) + addZero(tempDate.getDayOfMonth()));
-        return result.stream().map(item -> DAY_HOME + item + "/").collect(Collectors.toList());
+        return result.stream().map(item -> koalaContext.getDAY_HOME() + item + "/").collect(Collectors.toList());
     }
 
-    private static String addZero(int value) {
+    private String addZero(int value) {
 
         String valueAsString = Integer.toString(value);
         return value < 10 ? "0" + valueAsString : valueAsString;

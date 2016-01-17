@@ -4,7 +4,7 @@ package horzsolt.petprojects.koala.model;
  *
  * @author horzsolt
  */
-public class Mp3File {
+public class MusicFile {
     
     private String title;
     private long size;

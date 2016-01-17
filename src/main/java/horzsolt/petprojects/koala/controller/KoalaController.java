@@ -1,6 +1,5 @@
 package horzsolt.petprojects.koala.controller;
 
-import java.time.LocalDate;
 import java.util.Locale;
 
 import javax.validation.Valid;
@@ -16,6 +15,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import horzsolt.petprojects.koala.db.ConfigPersister;
 import horzsolt.petprojects.koala.db.DownloadProperties;
 import horzsolt.petprojects.koala.model.KoalaForm;
+import horzsolt.petprojects.koala.util.DirectoryUtil;
+import horzsolt.petprojects.koala.util.FtpUtil;
 import horzsolt.petprojects.koala.util.HULocalDateFormatter;
 
 @Controller
@@ -31,27 +32,27 @@ public class KoalaController {
 	@RequestMapping("/")
 	public String getRootPage(KoalaForm koalaForm) {
 
-		logger.debug("------------------------------ Start");
 		ConfigPersister persister = new ConfigPersister();
 
-		DownloadProperties props = persister.readConfig("fav");
+		DownloadProperties props = persister.readConfig("0day2");
 		koalaForm.setStartDate(props.getStart());
 		koalaForm.setEndDate(props.getEnd());
-
-		koalaForm.setStartDate(LocalDate.now());
-		koalaForm.setEndDate(LocalDate.now().plusDays(5));
 
 		return "rootPage";
 	}
 
 	@RequestMapping(value = "/", method = RequestMethod.POST)
 	public String saveProfile(@Valid KoalaForm koalaForm, BindingResult bindingResult) {
-		
+
 		if (bindingResult.hasErrors()) {
 			return "rootPage";
 		}
-		
-		System.out.println("save ok" + koalaForm);
+
+		DirectoryUtil directoryUtil = new DirectoryUtil();
+		FtpUtil ftpUtil = new FtpUtil();
+		directoryUtil.GetDaysBetweenDates(koalaForm.getStartDate(), koalaForm.getEndDate()).stream()
+				.forEach(item -> ftpUtil.directoryToAlbum(item).stream().forEach(album -> album.write()));
+
 		return "redirect:/";
 	}
 

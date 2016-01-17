@@ -7,7 +7,7 @@ import java.util.function.Predicate;
  *
  * @author horzsolt
  */
-public class Mp3AlbumPredicates {
+public class AlbumPredicates {
 
     public static String cleanFolderName(String folder) {
         String cleanFolderName = folder;
@@ -60,11 +60,11 @@ public class Mp3AlbumPredicates {
         return result;
     }
 
-    public static Predicate<Mp3Album> is0day2() {
+    public static Predicate<Album> is0day2() {
         return p -> isFavourite(p.getTitle());
     }
     
-    public static Predicate<Mp3Album> isVA() {
+    public static Predicate<Album> isVA() {
         return p -> p.getTitle().startsWith("VA");
     }    
 }

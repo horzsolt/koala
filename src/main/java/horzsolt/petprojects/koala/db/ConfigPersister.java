@@ -8,21 +8,30 @@ import java.sql.ResultSet;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import horzsolt.petprojects.KoalaApplication;
+import horzsolt.petprojects.KoalaApplication.KoalaContext;
 
 public class ConfigPersister {
 
 	private static Logger logger = LogManager.getLogger(ConfigPersister.class.getName());
-	private static Connection connection = null;
-	@Value("${mysql_connection}")
-	private static String jdbc_url;
-
-	private static void connect() {
+	private Connection connection = null;
+	
+	@Autowired
+	private KoalaContext koalaContext;
+	
+	private void connect() {
 
 		try {
 
-			logger.debug("-------------------------------------------jdbc_url: " + jdbc_url);
+			//koalaApplication.KoalaContext
+			if (koalaContext == null) {
+				logger.debug("context is null");
+				koalaContext = KoalaApplication.context.getBean(KoalaContext.class);
+			}
+			
+			String jdbc_url = koalaContext.getJdbc_Url();
 			
 			if (connection != null) {
 				if (!connection.isClosed()) {
@@ -37,7 +46,7 @@ public class ConfigPersister {
 		}
 	}
 
-	public static DownloadProperties readConfig(String type) {
+	public DownloadProperties readConfig(String type) {
 
 		connect();
 		PreparedStatement pstmt = null;
@@ -73,7 +82,7 @@ public class ConfigPersister {
 		return result;
 	}
 
-	public static void saveConfig(String type, Date start, Date end) {
+	public void saveConfig(String type, Date start, Date end) {
 
 		connect();
 		PreparedStatement pstmt = null;

@@ -1,12 +1,6 @@
 package horzsolt.petprojects.koala.model;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.PropertySource;
-
-@PropertySource("classpath:config.properties")
 public class Constants {
-	@Value("${koala.serializationroot}")
-	public static String serializationRoot;
 
 	public static final String[] favs = { "BUUREN", "DIGWEED", "SAIZ", "PETETONG", "SANDER", "GUYJ", "NICKWARREN",
 			"SASHA", "MACEOPLEX", "ADVISOR", "CHART", "NEWIK", "MUSICKILLERS", "MINILOGUE", "PIGDAN", "WATERMAT",
